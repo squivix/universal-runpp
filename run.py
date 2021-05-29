@@ -6,37 +6,57 @@ import webbrowser
 import shutil
 
 
-if len(sys.argv)<2:
-    input("Expected a command line argument with file path.")
-    exit(1)
+def main():
+    if len(sys.argv) < 2:
+        input("Expected a command line argument with file path.")
+        exit(1)
 
-file_path=sys.argv[1]
-file_name=ntpath.basename(file_path)
-file_extension=os.path.splitext(file_name)[1]
+    file_path = sys.argv[1]
+    file_name = ntpath.basename(file_path)
+    file_extension = os.path.splitext(file_name)[1].lower()
 
-print(file_path)
-print(file_name)
-print(file_extension)
+    print(file_path)
+    print(file_name)
+    print(file_extension)
 
-# TODO: save file
+    # TODO save file
 
-if file_extension=='.py':
+    if file_extension == '.py':
+        run_python(file_path)
+    elif file_extension == '.js':
+        run_javascript(file_path, True)
+    elif file_extension == '.java':
+        run_java(file_path, file_name)
+    
+    input("\nPress enter to exit...")
+
+
+def run_python(file_path):
     exec(open(file_path).read())
-elif file_extension=='.js':
-    # run in broswer
-    html='<script src="%s"></script>'%(file_path)
-    with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as browser_file:
-        url = 'file://' + browser_file.name
-        browser_file.write(html)
-        webbrowser.open(url)
-elif file_extension=='.java':
-    directory=file_path.rstrip(file_name)
+
+
+def run_javascript(file_path, run_in_browser=False):
+    if run_in_browser:
+        html = f'<script src="{file_path}"></script>'
+        with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as browser_file:
+            url = 'file://' + browser_file.name
+            browser_file.write(html)
+            webbrowser.open(url)
+    else:
+        # run in node.js
+        os.system(f'node "{file_path}"')
+
+
+def run_java(file_path, file_name):
+    directory = file_path.rstrip(file_name)
     os.chdir(directory)
     os.system('javac -d ./bin *.java')
     if os.path.exists('bin'):
         os.chdir('bin')
-        os.system('java %s'%(file_name.rstrip(file_extension)))
+        os.system(f'java {file_name.rstrip(".java")}')
         os.chdir('..')
         shutil.rmtree('bin')
-        
-input("\nPress enter to exit...")
+
+
+if __name__ == "__main__":
+    main()  
