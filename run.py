@@ -4,7 +4,7 @@ import os.path
 import tempfile
 import webbrowser
 import shutil
-
+import traceback
 
 def main():
     if len(sys.argv) < 2:
@@ -27,12 +27,14 @@ def main():
         run_javascript(file_path, True)
     elif file_extension == '.java':
         run_java(file_path, file_name)
-    
     input("\nPress enter to exit...")
 
 
 def run_python(file_path):
-    exec(open(file_path).read())
+    try:
+        exec(open(file_path).read())
+    except Exception as e:
+        input(traceback.format_exc())
 
 
 def run_javascript(file_path, run_in_browser=False):
@@ -56,7 +58,6 @@ def run_java(file_path, file_name):
         os.system(f'java {file_name.rstrip(".java")}')
         os.chdir('..')
         shutil.rmtree('bin')
-
 
 if __name__ == "__main__":
     main()  
