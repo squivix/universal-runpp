@@ -5,7 +5,7 @@ import tempfile
 import webbrowser
 import shutil
 import traceback
-
+from subprocess import call
 def main():
     if len(sys.argv) < 2:
         input("Expected a command line argument with file path.")
@@ -22,17 +22,23 @@ def main():
     # TODO save file
 
     if file_extension == '.py':
-        run_python(file_path)
+        run_python(file_path,file_name)
     elif file_extension == '.js':
         run_javascript(file_path, True)
+        exit(0)     # do not pause on exit for browser js
     elif file_extension == '.java':
         run_java(file_path, file_name)
+    elif file_extension=='.cpp':
+        run_cpp(file_path, file_name)
     input("\nPress enter to exit...")
 
 
-def run_python(file_path):
+def run_python(file_path, file_name):
     try:
-        exec(open(file_path).read())
+        directory = file_path.rstrip(file_name)
+        os.chdir(directory)
+        call(["python", file_path])
+        
     except Exception as e:
         input(traceback.format_exc())
 
@@ -58,6 +64,15 @@ def run_java(file_path, file_name):
         os.system(f'java {file_name.rstrip(".java")}')
         os.chdir('..')
         shutil.rmtree('bin')
+
+def run_cpp(file_path, file_name):
+    try:
+        directory = file_path.rstrip(file_name)
+        os.chdir(directory)
+        os.system(f'g++ *.')
+        os.system('a')
+    except Exception as e:
+        input(e)
 
 if __name__ == "__main__":
     main()  
